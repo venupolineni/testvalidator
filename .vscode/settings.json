@@ -1,0 +1,4 @@
+{
+    "python.pythonPath": "/Users/greghodgkinson/Documents/git/as400-modernizer/venv/bin/python",
+    "python.analysis.extraPaths": ["/Users/greghodgkinson/Documents/git/as400-modernizer/venv/lib/python3.12/site-packages"]
+}
