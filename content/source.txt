@@ -1,0 +1,984 @@
+INSTRUCTIONS
+Using the full set of code that I provided, please provide a comprehensive and critical code review using the specification and code review checklist below. Your output should address each point in the checklist with specific, detailed feedback about how the code meets or fails to meet each requirement. The review must be thorough and precise, with no ambiguity or suggestions. The focus is on identifying issues and providing a cut-throat analysis.
+
+Specification
+The application is a point-of-sale tool for a store, like Home Depot, that rents big tools. Customers rent a tool for a specified number of days. When a customer checks out a tool, a Rental Agreement is produced. The store charges a daily rental fee, whose amount is different for each tool type. Some tools are free of charge on weekends or holidays. Clerks may give customers a discount that is applied to the total daily charges to reduce the final charge.
+
+Rules for considering Holidays in calculation
+There are only two (2) holidays in the calendar:
+
+Independence Day, July 4th - If falls on weekend, it is observed on the closest weekday (if Sat, then Friday before, if Sunday, then Monday after)
+Labor Day - First Monday in September
+Metadata
+
+Tool Code - Unique identifier for a tool instance.
+Tool Type - The type of tool. The type also specifies the daily rental charge, and the days for which the daily rental charge applies.
+Brand - The brand of the ladder, chain saw or jackhammer.
+Use Case 1
+Checkout
+
+Checkout requires the following information to be provided:
+Tool code - See tool table above
+Rental day count - The number of days for which the customer wants to rent the tool. (e.g. 4 days)
+Discount percent - As a whole number, 0-100 (e.g. 20 = 20%)
+Check out date
+Use Case 2
+Checkout should throw an exception with an instructive, user-friendly message if:
+
+Rental day count is not 1 or greater
+Discount percent is not in the range 0-100
+Use Case 3
+Checkout generates a Rental Agreement instance with the following values:
+
+Tool code - Specified at checkout
+Tool type - From tool info
+Tool brand - From tool info
+Rental days - Specified at checkout
+Check out date - Specified at checkout
+Due date - Calculated from checkout date and rental days.
+Daily rental charge - Amount per day, specified by the tool type.
+Charge days - Count of chargeable days, from day after checkout through and including due date, excluding no charge days as specified by the tool type.
+Pre-discount charge - Calculated as charge days X daily charge. Resulting total rounded half up to cents.
+Discount percent - Specified at checkout.
+Discount amount - Calculated from discount % and pre-discount charge. Resulting amount rounded half up to cents.
+Final charge - Calculated as pre-discount charge - discount amount.
+Use Case 4
+Rental Agreement should include a method that can print the above values as text to the console like this:
+
+Tool code: LADW
+Tool type: Ladder
+Final charge: $9.99
+with formatting as follows:
+
+Date mm/dd/yy
+Currency $9,999.99
+Percent 99%
+Master Data
+
+ToolCode ToolType   Brand
+CHNS     Chainsaw   Stihl
+LADW     Ladder     Werner
+JAKD     Jackhammer DeWalt
+JAKR     Jackhammer Ridgid
+
+Dailycharge WeekDayCharge Weekendcharge holidaycharge
+Ladder      $1.99         Yes           Yes          No
+Chainsaw    $1.49         Yes           No           Yes
+Jackhammer  $2.99         Yes           No           No
+Code must include JUnits to prove solution is correct. The proof should include the following scenarios:
+
+Test1  Test2  Test3  Test4  Test5  Test6
+Tool code     JAKR   LADW   CHNS   JAKD   JAKR   JAKR
+Checkout date 9/3/2015 7/2/2020 7/2/2015 9/3/2015 7/2/2015 7/2/2020
+Rental days   5     3     5     6     9     4
+Discount      101%  10%   25%   0%    0%    50%
+CODE REVIEW CHECKLIST
+
+Input Validation:
+
+Ensure that the tool code provided is valid and exists in the tool table.
+Check for validations ensuring that the rental day count is 1 or more.
+Confirm validations for the discount percent are in place (must be in the range 0-100).
+Comprehensive Functionality and Logic:
+
+Verify due date calculation - it must be correctly computed from the checkout date and the rental days.
+Ensure correct daily charges based on the type of tool and the respective charge rates.
+Verify that the logic for "no charge" days covers both weekends and holidays as per the defined rules. Make sure tool-specific rules are taken into account.
+Confirm that the discount logic correctly calculates pre-discount charges, discount amount, and the final charge. Check for correct rounding off to cents.
+Rental Agreement:
+
+Check that a Rental Agreement instance is generated as required with all necessary details: tool code, tool type, rental days, checkout date, due date, charge details and charges.
+Verify the accuracy of each entry in the Rental Agreement.
+Error Handling:
+
+Verify user-friendly messages for invalid inputs and other exceptions.
+Print Functionality:
+
+Check the function that prints the rental agreement to the console. It should display all the expected details in the correct format.
+Code Quality (S.O.L.I.D Principles):
+
+Review the code for clarity: it should be easy to read, understand, and maintain.
+Check usage of meaningful variable and method names.
+Look for code efficiency: the solution should not do unnecessary computations.
+Check for consistent indentation and spacing.
+Single Responsibility: Each function or module in the code should ideally have one job.
+Open-Closed: The code should be open for extension (in case of new tool types or holiday rules) but closed for modifications.
+Liskov's Substitution: If the codebase has classes and they share a hierarchy, parent classes should be easily replaceable with child classes without affecting functionality.
+Interface Segregation: Should have multiple specific interfaces instead of a single general-purpose interface, in case interfaces are used.
+Dependency Inversion: High-level modules should not depend directly on low-level modules. Both should depend on abstractions.
+Unit Testing:
+
+The unit tests should cover all methods and functions of the application. Edge cases should be included in these tests.
+Check specificity of test cases. Each test should focus on one functionality or scenario.
+Review whether mock objects are used suitably for isolating the method being tested.
+Unit test names should clearly state what each test does.
+Confirm that required test scenarios mentioned in the assignment are covered, including tests on the boundary values of discount percent and rental day count.
+Additional Coding Best Practices:
+
+Look for code comments that provide clarity on the logic especially for complex parts of the code.
+Check for the reuse of code. Code duplication should be avoided.
+Confirm if the code follows the naming conventions for methods, variables and classes.
+The code should handle null values to avoid NullPointerExceptions.
+The code should have consistent indentation and spacing.
+Application:
+
+Verify application is compiling without any code errors
+Verify if the functionality requested is achieved
+Verify if Unit Tests are executing and providing results as expected
+Hints
+
+Perform code analysis based on specification, use cases, and rules.
+Use the CODE REVIEW CHECKLIST detailed out by each section and provide feedback for each of it in the output.
+Provide the results if the code met the requested specification and issues.
+Do not put any special characters in the output.
+Use Markdown format.
+Output should be structured with an overall quality assessment of the code, stating whether the code "meets expectations" or "does not meet expectations."
+Output should include a code review checklist summary at the top, followed by detailed feedback along with check mark for passed/failed for each item in the code review checklist.
+
+**Code:**
+```java
+File: .\testcode\src\main\java\com\shiva\rental_service\RentalServiceApplication.java
+package com.shiva.rental_service;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class RentalServiceApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(RentalServiceApplication.class, args);
+    }
+}
+
+
+File: .\testcode\src\main\java\com\shiva\rental_service\entities\Cart.java
+package com.shiva.rental_service.entities;
+
+import com.shiva.rental_service.exception.InvalidDataException;
+import lombok.*;
+
+import java.time.LocalDate;
+import java.util.Map;
+
+/**
+ * Represents a cart containing tools and their quantities for rental.
+ * <p>
+ * Attributes:
+ * - toolQuantities: Map<Tool, Integer>, a mapping of Tool objects to their respective quantities
+ * - startDate: LocalDate, the start date of the rental period
+ * - endDate: LocalDate, the end date of the rental period
+ * <p>
+ * Constructors:
+ * - Cart(Map<Tool, Integer> toolQuantities, LocalDate startDate, LocalDate endDate): Initializes the Cart with the given tool quantities, start date, and end date.
+ */
+@Getter
+@AllArgsConstructor
+public class Cart {
+
+    private Map<Tool, Integer> toolQuantities; // Tool and its quantity
+
+    private LocalDate startDate;
+
+    private LocalDate endDate;
+
+    /**
+     * Initializes a Cart object with the given tool quantities, total days, and start date.
+     *
+     * @param toolQuantities a mapping of Tool objects to their respective quantities
+     * @param totalDays      the total number of days for the rental period
+     * @param startDate      the start date of the rental period
+     */
+    public Cart(Map<Tool, Integer> toolQuantities, LocalDate startDate,int totalDays) {
+
+        if (totalDays < 1) {
+            throw new InvalidDataException("Total days cannot be less than 1");
+        }
+
+        this.toolQuantities = toolQuantities;
+        this.startDate = startDate;
+        this.endDate = startDate.plusDays(totalDays - 1);
+    }
+}
+
+
+File: .\testcode\src\main\java\com\shiva\rental_service\entities\RentalAgreement.java
+package com.shiva.rental_service.entities;
+
+import lombok.*;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Represents a rental agreement for a tool, containing information such as tool code, type, brand, rental days,
+ * checkout date, due date, daily rental charge, charge days, pre-discount charge, discount percent, discount amount,
+ * and final charge.
+ */
+@Getter
+@Setter
+public class RentalAgreement {
+    // Common properties
+    private int rentalDays;
+    private LocalDate checkoutDate;
+    private LocalDate dueDate;
+    private double preDiscountCharge;
+    private int discountPercent;
+    private double discountAmount;
+    private double finalCharge;
+
+    @Setter(AccessLevel.NONE)
+    private List<ToolInfo> tools = new ArrayList<>();
+
+
+    // Tool-specific information
+    @Getter
+    @Setter
+    public static class ToolInfo {
+        private String code;
+        private String type;
+        private String brand;
+        private double dailyCharge;
+        private int quantity;
+        private int chargeDays;
+    }
+
+
+    public void addTool(Tool tool, int quantity, int chargeDays) {
+        ToolInfo toolInfo = new ToolInfo();
+        toolInfo.setCode(tool.getCode());
+        toolInfo.setType(tool.getType());
+        toolInfo.setBrand(tool.getBrand());
+        toolInfo.setDailyCharge(tool.getDailyCharge());
+        toolInfo.setQuantity(quantity);
+        toolInfo.setChargeDays(chargeDays);
+        tools.add(toolInfo);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Rental Agreement\n");
+        sb.append("Rental Days: ").append(rentalDays).append("\n");
+        sb.append("Checkout Date: ").append(checkoutDate).append("\n");
+        sb.append("Due Date: ").append(dueDate).append("\n");
+        sb.append("Pre-discount Charge: $").append(String.format("%.2f", preDiscountCharge)).append("\n");
+        sb.append("Discount Percent: ").append(discountPercent).append("%\n");
+        sb.append("Discount Amount: $").append(String.format("%.2f", discountAmount)).append("\n");
+        sb.append("Final Charge: $").append(String.format("%.2f", finalCharge)).append("\n");
+
+        sb.append("\nTools:\n");
+        sb.append(String.format("%-10s %-15s %-15s %-15s %-10s %-10s\n", "Tool Code", "Tool Type", "Tool Brand", "Daily Charge", "Quantity", "Charge Days"));
+        sb.append("---------------------------------------------------------------------\n");
+
+        for (ToolInfo toolInfo : tools) {
+            sb.append(String.format("%-10s %-15s %-15s $%-14.2f %-10d %-10d\n",
+                    toolInfo.getCode(), toolInfo.getType(), toolInfo.getBrand(), toolInfo.getDailyCharge(), toolInfo.getQuantity(), toolInfo.getChargeDays()));
+        }
+
+        return sb.toString();
+    }
+}
+
+
+File: .\testcode\src\main\java\com\shiva\rental_service\entities\Tool.java
+package com.shiva.rental_service.entities;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+/**
+ * Represents a tool that can be rented out.
+ * Attributes:
+ * - code: String, the unique code of the tool
+ * - type: String, the type of the tool
+ * - brand: String, the brand of the tool
+ * - dailyCharge: double, the daily rental charge for the tool
+ * - chargeOnWeekends: boolean, indicates if there is a charge for renting the tool on weekends
+ * - chargeOnHolidays: boolean, indicates if there is a charge for renting the tool on holidays
+ */
+@Getter
+@AllArgsConstructor
+public class Tool {
+    private String code;
+    private String type;
+    private String brand;
+    private double dailyCharge;
+    private boolean chargeOnWeekends;
+    private boolean chargeOnHolidays;
+}
+
+
+File: .\testcode\src\main\java\com\shiva\rental_service\exception\InvalidDataException.java
+package com.shiva.rental_service.exception;
+
+public class InvalidDataException extends RuntimeException {
+    public InvalidDataException(String message) {
+        super(message);
+    }
+}
+
+
+File: .\testcode\src\main\java\com\shiva\rental_service\exception\InvalidDateRangeException.java
+package com.shiva.rental_service.exception;
+
+/**
+ * Custom exception class to represent an invalid date range.
+ * Extends the RuntimeException class.
+ */
+public class InvalidDateRangeException extends RuntimeException {
+    public InvalidDateRangeException(String message) {
+        super(message);
+    }
+}
+
+
+File: .\testcode\src\main\java\com\shiva\rental_service\exception\InvalidDiscountException.java
+package com.shiva.rental_service.exception;
+
+/**
+ * Custom exception class to represent an invalid discount value.
+ * Extends the RuntimeException class.
+ */
+public class InvalidDiscountException extends RuntimeException {
+    public InvalidDiscountException(String message) {
+        super(message);
+    }
+}
+
+
+File: .\testcode\src\main\java\com\shiva\rental_service\exception\NoChargeableDaysException.java
+package com.shiva.rental_service.exception;
+
+/**
+ * Custom exception class to represent an exception when there are no chargeable days after excluding holidays and weekends.
+ */
+public class NoChargeableDaysException extends RuntimeException {
+    public NoChargeableDaysException(String message) {
+        super(message);
+    }
+}
+
+
+File: .\testcode\src\main\java\com\shiva\rental_service\services\CheckoutService.java
+package com.shiva.rental_service.services;
+
+import com.shiva.rental_service.entities.Cart;
+import com.shiva.rental_service.entities.RentalAgreement;
+import com.shiva.rental_service.entities.Tool;
+import com.shiva.rental_service.exception.InvalidDataException;
+import com.shiva.rental_service.exception.InvalidDateRangeException;
+import com.shiva.rental_service.exception.InvalidDiscountException;
+import com.shiva.rental_service.exception.NoChargeableDaysException;
+import lombok.NonNull;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.Map;
+
+/**
+ * Represents a service for checking out tools and generating rental agreements.
+ * The service calculates the total charge for renting tools based on the provided cart and discount percentage.
+ * It ensures that the discount percentage is valid, the cart has a valid date range and tool quantities,
+ * and calculates the chargeable days for each tool considering weekends and holidays.
+ * The service then generates a rental agreement with details such as tool code, type, brand, rental days,
+ * checkout date, due date, daily rental charge, charge days, pre-discount charge, discount percent, discount amount, and final charge.
+ */
+public class CheckoutService {
+
+    private final HolidayService holidayService;
+
+    /**
+     * Constructs a new CheckoutService with the provided HolidayService.
+     *
+     * @param holidayService the HolidayService to be used for checking holidays.
+     */
+    public CheckoutService(@NonNull final HolidayService holidayService) {
+        this.holidayService = holidayService;
+    }
+
+
+    /**
+     * Generates a rental agreement based on the provided cart and discount percentage.
+     *
+     * @param cart            the cart containing tools and rental dates
+     * @param discountPercent the discount percentage to be applied
+     * @return the generated rental agreement
+     */
+    public RentalAgreement checkout(Cart cart, int discountPercent) {
+        // Validate the discount percentage
+        if (discountPercent < 0 || discountPercent > 100) {
+            throw new InvalidDiscountException("Discount percent must be between 0 and 100.");
+        }
+
+        if (cart == null || cart.getToolQuantities() == null || cart.getToolQuantities().isEmpty()) {
+            throw new InvalidDataException("Cart and tool quantities cannot be null.");
+        }
+
+
+        // Validate the cart and its contents
+        if (cart.getStartDate() == null || cart.getEndDate() == null || cart.getEndDate().isBefore(cart.getStartDate())) {
+            throw new InvalidDateRangeException("End date cannot be before start date or tool quantities are null.");
+        }
+
+        // Calculate rental days and initialize variables
+        int rentalDays = (int) (cart.getStartDate().until(cart.getEndDate(), ChronoUnit.DAYS) + 1);
+        BigDecimal totalPreDiscountCharge = BigDecimal.ZERO;
+        int totalChargeDays = 0;
+
+        RentalAgreement agreement = new RentalAgreement();
+
+        // Calculate charges for each tool in the cart
+        for (Map.Entry<Tool, Integer> entry : cart.getToolQuantities().entrySet()) {
+            Tool tool = entry.getKey();
+            int quantity = entry.getValue();
+
+            // Calculate charge days and pre-discount charge for the tool
+            int chargeDays = calculateChargeDays(cart.getStartDate(), cart.getEndDate(), tool);
+            BigDecimal preDiscountCharge = BigDecimal.valueOf(chargeDays).multiply(BigDecimal.valueOf(tool.getDailyCharge())).multiply(BigDecimal.valueOf(quantity));
+
+
+            totalChargeDays += chargeDays;
+            totalPreDiscountCharge = totalPreDiscountCharge.add(preDiscountCharge);
+            agreement.addTool(tool, quantity, chargeDays);
+        }
+
+        // Handle case where no chargeable days are found
+        if (totalChargeDays == 0) {
+            throw new NoChargeableDaysException("No chargeable days after excluding holidays and weekends.");
+        }
+
+        // Calculate discount amount and final charge
+        BigDecimal discountAmount = totalPreDiscountCharge.multiply(BigDecimal.valueOf(discountPercent)).divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);
+        BigDecimal finalCharge = totalPreDiscountCharge.subtract(discountAmount);
+
+
+        agreement.setRentalDays(rentalDays);
+        agreement.setCheckoutDate(cart.getStartDate());
+        agreement.setDueDate(cart.getEndDate());
+        agreement.setPreDiscountCharge(totalPreDiscountCharge.doubleValue());
+        agreement.setDiscountPercent(discountPercent);
+        agreement.setDiscountAmount(discountAmount.doubleValue());
+        agreement.setFinalCharge(finalCharge.doubleValue());
+
+        return agreement;
+    }
+
+    /**
+     * Calculates the number of chargeable days between the start and end dates
+     * based on the tool's charging policy taking into account weekends and holidays.
+     *
+     * @param startDate the start date of the period
+     * @param endDate   the end date of the period
+     * @param tool      the tool used for calculations
+     * @return the total number of chargeable days
+     */
+    private int calculateChargeDays(LocalDate startDate, LocalDate endDate, Tool tool) {
+        int chargeDays = 0;
+        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+            DayOfWeek dayOfWeek = date.getDayOfWeek();
+            boolean isHoliday = holidayService.isHoliday(date);
+            if ((dayOfWeek != DayOfWeek.SATURDAY && dayOfWeek != DayOfWeek.SUNDAY) || tool.isChargeOnWeekends()) {
+                if (!isHoliday || tool.isChargeOnHolidays()) {
+                    chargeDays++;
+                }
+            }
+        }
+        return chargeDays;
+    }
+}
+
+
+File: .\testcode\src\main\java\com\shiva\rental_service\services\HolidayService.java
+package com.shiva.rental_service.services;
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.temporal.TemporalAdjusters;
+
+/**
+ * This class provides functionality to determine if a given date is a holiday.
+ * It includes methods to check if a date is Independence Day or Labor Day.
+ */
+public class HolidayService {
+
+    /**
+     * Determines if the given date is a holiday.
+     *
+     * @param date the date to check
+     * @return true if the date is Independence Day or Labor Day, false otherwise
+     */
+    public boolean isHoliday(LocalDate date) {
+        int year = date.getYear();
+        LocalDate independenceDay = getIndependenceDay(year);
+        LocalDate laborDay = getLaborDay(year);
+
+        return date.equals(independenceDay) || date.equals(laborDay);
+    }
+
+    /**
+     * A method to get the independence day for a given year.
+     *
+     * @param year the year for which the independence day is needed
+     * @return the calculated independence day adjusted for weekends
+     */
+    private LocalDate getIndependenceDay(int year) {
+        LocalDate independenceDay = LocalDate.of(year, Month.JULY, 4);
+        DayOfWeek dayOfWeek = independenceDay.getDayOfWeek();
+        if (dayOfWeek == DayOfWeek.SATURDAY) {
+            return independenceDay.minusDays(1);
+        } else if (dayOfWeek == DayOfWeek.SUNDAY) {
+            return independenceDay.plusDays(1);
+        }
+        return independenceDay;
+    }
+
+    /**
+     * A method to get the date of Labor Day for a given year.
+     *
+     * @param year the year for which Labor Day date is needed
+     * @return the date of Labor Day for the specified year
+     */
+    private LocalDate getLaborDay(int year) {
+        return LocalDate.of(year, Month.SEPTEMBER, 1).with(TemporalAdjusters.firstInMonth(DayOfWeek.MONDAY));
+    }
+}
+
+
+File: .\testcode\src\main\resources\application.properties
+spring.application.name=rental-service
+
+File: .\testcode\src\test\java\com\shiva\rental_service\CheckoutServiceTest.java
+package com.shiva.rental_service;
+
+import com.shiva.rental_service.entities.Cart;
+import com.shiva.rental_service.entities.RentalAgreement;
+import com.shiva.rental_service.entities.Tool;
+import com.shiva.rental_service.exception.InvalidDataException;
+import com.shiva.rental_service.exception.InvalidDateRangeException;
+import com.shiva.rental_service.exception.InvalidDiscountException;
+import com.shiva.rental_service.exception.NoChargeableDaysException;
+import com.shiva.rental_service.services.CheckoutService;
+import com.shiva.rental_service.services.HolidayService;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
+
+public class CheckoutServiceTest {
+    private static Map<String, Tool> toolInventory;
+    private static CheckoutService checkoutService;
+
+    @BeforeAll
+    public static void setup() {
+        toolInventory = new HashMap<>();
+        toolInventory.put("CHNS", new Tool("CHNS", "Chainsaw", "Stihl", 1.49, false, true));
+        toolInventory.put("LADW", new Tool("LADW", "Ladder", "Werner", 1.99, true, false));
+        toolInventory.put("JAKD", new Tool("JAKD", "Jackhammer", "DeWalt", 2.99, false, false));
+        toolInventory.put("JAKR", new Tool("JAKR", "Jackhammer", "Ridgid", 2.99, false, false));
+
+        HolidayService holidayService = new HolidayService();
+        checkoutService = new CheckoutService(holidayService);
+    }
+
+
+    @Test
+    public void testCheckout() {
+
+        // Add test cases
+        Map<Tool, Integer> toolQuantities1 = new HashMap<>();
+        toolQuantities1.put(toolInventory.get("LADW"), 1);
+        Cart cart1 = new Cart(toolQuantities1, LocalDate.of(2024, 7, 2), LocalDate.of(2024, 7, 5));
+        RentalAgreement agreement1 = checkoutService.checkout(cart1, 10);
+        Assertions.assertEquals(agreement1.getTools().get(0).getCode(), "LADW");
+        Assertions.assertEquals(agreement1.getFinalCharge(), 5.37, 0.01);
+//
+        Map<Tool, Integer> toolQuantities2 = new HashMap<>();
+        toolQuantities2.put(toolInventory.get("CHNS"), 1);
+        Cart cart2 = new Cart(toolQuantities2, LocalDate.of(2024, 7, 2), LocalDate.of(2024, 7, 6));
+        RentalAgreement agreement2 = checkoutService.checkout(cart2, 25);
+        Assertions.assertEquals(agreement2.getTools().get(0).getCode(), "CHNS");
+        Assertions.assertEquals(agreement2.getFinalCharge(), 4.47, 0.01);
+
+    }
+
+    @Test
+    public void checkout_with_emptyCart() {
+        Assertions.assertThrows(InvalidDataException.class, () -> checkoutService.checkout(null, 10));
+    }
+
+    @Test
+    public void checkout_with_Cart_having_null_tools() {
+        Cart cart = new Cart(null, LocalDate.of(2024, 7, 2), LocalDate.of(2024, 7, 5));
+        Assertions.assertThrows(InvalidDataException.class, () -> checkoutService.checkout(cart, 10));
+    }
+
+    @Test
+    public void checkout_with_Cart_having_empty_tools() {
+        Cart cart = new Cart(new HashMap<>(), LocalDate.of(2024, 7, 2), LocalDate.of(2024, 7, 5));
+        Assertions.assertThrows(InvalidDataException.class, () -> checkoutService.checkout(cart, 10));
+    }
+
+    @Test
+    public void checkout_with_Cart_having_null_start_dates() {
+        Map<Tool, Integer> toolQuantities1 = new HashMap<>();
+        toolQuantities1.put(toolInventory.get("LADW"), 1);
+        Cart cart = new Cart(toolQuantities1, null, LocalDate.of(2024, 7, 5));
+        Assertions.assertThrows(InvalidDateRangeException.class, () -> checkoutService.checkout(cart, 10));
+    }
+
+
+    @Test
+    public void checkout_with_Cart_having_null_end_dates() {
+        Map<Tool, Integer> toolQuantities1 = new HashMap<>();
+        toolQuantities1.put(toolInventory.get("LADW"), 1);
+        Cart cart = new Cart(toolQuantities1, LocalDate.of(2024, 7, 5), null);
+        Assertions.assertThrows(InvalidDateRangeException.class, () -> checkoutService.checkout(cart, 10));
+    }
+
+    @Test
+    public void checkout_with_Cart_having_null_dates() {
+        Map<Tool, Integer> toolQuantities1 = new HashMap<>();
+        toolQuantities1.put(toolInventory.get("LADW"), 1);
+        Cart cart = new Cart(toolQuantities1, null, null);
+        Assertions.assertThrows(InvalidDateRangeException.class, () -> checkoutService.checkout(cart, 10));
+    }
+
+    @Test
+    public void invalid_total_days() {
+        Map<Tool, Integer> toolQuantities1 = new HashMap<>();
+        toolQuantities1.put(toolInventory.get("JAKR"), 1);
+        Assertions.assertThrows(InvalidDataException.class, () -> new Cart(toolQuantities1, LocalDate.of(2020, 7, 2),0));
+    }
+
+    @Test
+    public void testInvalidDiscountException() {
+        // Test Case: Discount is more than 100%
+        Map<Tool, Integer> toolQuantities = new HashMap<>();
+        toolQuantities.put(toolInventory.get("LADW"), 1);
+        Cart cart = new Cart(toolQuantities, LocalDate.of(2024, 6, 23), LocalDate.of(2024, 6, 27));
+
+        Assertions.assertThrows(InvalidDiscountException.class, () -> checkoutService.checkout(cart, 101));
+    }
+
+    @Test
+    public void testInvalidDiscountException_negative() {
+        // Test Case: Discount is more than 100%
+        Map<Tool, Integer> toolQuantities = new HashMap<>();
+        toolQuantities.put(toolInventory.get("LADW"), 1);
+        Cart cart = new Cart(toolQuantities, LocalDate.of(2024, 6, 23), LocalDate.of(2024, 6, 27));
+
+        Assertions.assertThrows(InvalidDiscountException.class, () -> checkoutService.checkout(cart, -10));
+    }
+
+    @Test
+    public void testInvalidDateRangeException() {
+        // Test Case: To-date is less than from-date
+        Map<Tool, Integer> toolQuantities = new HashMap<>();
+        toolQuantities.put(toolInventory.get("CHNS"), 1);
+        Cart cart = new Cart(toolQuantities, LocalDate.of(2024, 6, 27), LocalDate.of(2024, 6, 23));
+
+        Assertions.assertThrows(InvalidDateRangeException.class, () -> checkoutService.checkout(cart, 10));
+    }
+
+    @Test
+    public void testNoChargeableDaysException() {
+        // Test Case: No chargeable days after excluding holidays and weekends
+        Map<Tool, Integer> toolQuantities = new HashMap<>();
+        toolQuantities.put(toolInventory.get("JAKD"), 1);
+        Cart cart = new Cart(toolQuantities, LocalDate.of(2024, 7, 4), LocalDate.of(2024, 7, 4)); // Independence Day
+
+        Assertions.assertThrows(NoChargeableDaysException.class, () -> checkoutService.checkout(cart, 10));
+    }
+}
+
+
+File: .\testcode\src\test\java\com\shiva\rental_service\RentalAgreementTest.java
+package com.shiva.rental_service;
+
+import com.shiva.rental_service.entities.Cart;
+import com.shiva.rental_service.entities.RentalAgreement;
+import com.shiva.rental_service.entities.Tool;
+import com.shiva.rental_service.services.CheckoutService;
+import com.shiva.rental_service.services.HolidayService;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
+
+public class RentalAgreementTest {
+
+    private static Map<String, Tool> toolInventory;
+    private static CheckoutService checkoutService;
+
+    @BeforeAll
+    public static void setup() {
+        toolInventory = new HashMap<>();
+        toolInventory.put("CHNS", new Tool("CHNS", "Chainsaw", "Stihl", 1.49, false, true));
+        toolInventory.put("LADW", new Tool("LADW", "Ladder", "Werner", 1.99, true, false));
+        toolInventory.put("JAKD", new Tool("JAKD", "Jackhammer", "DeWalt", 2.99, false, false));
+        toolInventory.put("JAKR", new Tool("JAKR", "Jackhammer", "Ridgid", 2.99, false, false));
+
+        HolidayService holidayService = new HolidayService();
+        checkoutService = new CheckoutService(holidayService);
+    }
+
+    @Test
+    public void rental_agreement_with_single_tool() {
+        Map<Tool, Integer> toolQuantities = new HashMap<>();
+        toolQuantities.put(toolInventory.get("LADW"), 1);
+        Cart cart = new Cart(toolQuantities, LocalDate.of(2015, 9, 3), LocalDate.of(2015, 9, 7));
+
+        RentalAgreement agreement = checkoutService.checkout(cart, 10);
+        System.out.println(agreement);
+
+        Assertions.assertEquals("LADW", agreement.getTools().get(0).getCode());
+        Assertions.assertEquals("Ladder", agreement.getTools().get(0).getType());
+        Assertions.assertEquals("Werner", agreement.getTools().get(0).getBrand());
+        Assertions.assertEquals(5, agreement.getRentalDays());
+        Assertions.assertEquals(LocalDate.of(2015, 9, 3), agreement.getCheckoutDate());
+        Assertions.assertEquals(LocalDate.of(2015, 9, 7), agreement.getDueDate());
+        Assertions.assertEquals(1.99, agreement.getTools().get(0).getDailyCharge());
+        Assertions.assertEquals(4, agreement.getTools().get(0).getChargeDays()); // 09/04/15 (Fri), 09/05/15 (Sat), 09/06/15 (Sun), 09/07/15 (Mon - Labor Day)
+        Assertions.assertEquals(7.96, agreement.getPreDiscountCharge(), 0.01);
+        Assertions.assertEquals(10, agreement.getDiscountPercent());
+        Assertions.assertEquals(0.80, agreement.getDiscountAmount(), 0.01);
+        Assertions.assertEquals(7.16, agreement.getFinalCharge(), 0.01);
+    }
+
+    @Test
+    public void rental_agreement_with_single_tool_multiple_quantity() {
+        Map<Tool, Integer> toolQuantities = new HashMap<>();
+        toolQuantities.put(toolInventory.get("LADW"), 2);
+        Cart cart = new Cart(toolQuantities, LocalDate.of(2015, 9, 3), LocalDate.of(2015, 9, 7));
+
+        RentalAgreement agreement = checkoutService.checkout(cart, 10);
+        System.out.println(agreement);
+
+        Assertions.assertEquals("LADW", agreement.getTools().get(0).getCode());
+        Assertions.assertEquals("Ladder", agreement.getTools().get(0).getType());
+        Assertions.assertEquals("Werner", agreement.getTools().get(0).getBrand());
+        Assertions.assertEquals(5, agreement.getRentalDays());
+        Assertions.assertEquals(LocalDate.of(2015, 9, 3), agreement.getCheckoutDate());
+        Assertions.assertEquals(LocalDate.of(2015, 9, 7), agreement.getDueDate());
+        Assertions.assertEquals(1.99, agreement.getTools().get(0).getDailyCharge());
+        Assertions.assertEquals(4, agreement.getTools().get(0).getChargeDays()); // 09/04/15 (Fri), 09/05/15 (Sat), 09/06/15 (Sun), 09/07/15 (Mon - Labor Day)
+        Assertions.assertEquals(15.92, agreement.getPreDiscountCharge(), 0.01);
+        Assertions.assertEquals(10, agreement.getDiscountPercent());
+        Assertions.assertEquals(1.59, agreement.getDiscountAmount(), 0.01);
+        Assertions.assertEquals(14.33, agreement.getFinalCharge(), 0.01);
+    }
+
+    @Test
+    public void rental_agreement_with_multiple_tool_single_quantity() {
+        Map<Tool, Integer> toolQuantities = new HashMap<>();
+        toolQuantities.put(toolInventory.get("LADW"), 1);
+        toolQuantities.put(toolInventory.get("JAKD"), 1);
+        Cart cart = new Cart(toolQuantities, LocalDate.of(2015, 9, 3), LocalDate.of(2015, 9, 7));
+
+        RentalAgreement agreement = checkoutService.checkout(cart, 10);
+        System.out.println(agreement);
+
+        // find index of tool JAKD in the list
+
+        int JAKDindex = 0;
+        for (RentalAgreement.ToolInfo tool : agreement.getTools()) {
+            if (tool.getCode().equals("JAKD")) {
+                JAKDindex = agreement.getTools().indexOf(tool);
+                break;
+            }
+        }
+        int LAKDindex = JAKDindex == 0 ? 1 : 0;
+
+
+        Assertions.assertEquals("JAKD", agreement.getTools().get(JAKDindex).getCode());
+        Assertions.assertEquals("LADW", agreement.getTools().get(LAKDindex).getCode());
+
+        Assertions.assertEquals("Jackhammer", agreement.getTools().get(JAKDindex).getType());
+        Assertions.assertEquals("Ladder", agreement.getTools().get(LAKDindex).getType());
+
+        Assertions.assertEquals("DeWalt", agreement.getTools().get(JAKDindex).getBrand());
+        Assertions.assertEquals("Werner", agreement.getTools().get(LAKDindex).getBrand());
+
+        Assertions.assertEquals(2.99, agreement.getTools().get(JAKDindex).getDailyCharge());
+        Assertions.assertEquals(1.99, agreement.getTools().get(LAKDindex).getDailyCharge());
+
+        Assertions.assertEquals(2, agreement.getTools().get(JAKDindex).getChargeDays()); // 09/04/15 (Fri), 09/05/15 (Sat), 09/06/15 (Sun), 09/07/15 (Mon - Labor Day)
+        Assertions.assertEquals(4, agreement.getTools().get(LAKDindex).getChargeDays()); // 09/04/15 (Fri), 09/05/15 (Sat), 09/06/15 (Sun), 09/07/15 (Mon - Labor Day)
+
+        //common properties
+        Assertions.assertEquals(5, agreement.getRentalDays());
+        Assertions.assertEquals(LocalDate.of(2015, 9, 3), agreement.getCheckoutDate());
+        Assertions.assertEquals(LocalDate.of(2015, 9, 7), agreement.getDueDate());
+        Assertions.assertEquals(13.94, agreement.getPreDiscountCharge(), 0.01, "Pre discount charge");
+        Assertions.assertEquals(10, agreement.getDiscountPercent(), "Discount percent");
+        Assertions.assertEquals(1.39, agreement.getDiscountAmount(), 0.01, "Discount amount");
+        Assertions.assertEquals(12.55, agreement.getFinalCharge(), 0.01, "Final charge");
+    }
+
+
+    @Test
+    public void rental_agreement_with_multiple_tool_multiple_quantity() {
+        Map<Tool, Integer> toolQuantities = new HashMap<>();
+        toolQuantities.put(toolInventory.get("LADW"), 2);
+        toolQuantities.put(toolInventory.get("JAKD"), 3);
+        Cart cart = new Cart(toolQuantities, LocalDate.of(2015, 9, 3), LocalDate.of(2015, 9, 7));
+
+        RentalAgreement agreement = checkoutService.checkout(cart, 10);
+        System.out.println(agreement);
+
+        //common properties
+        Assertions.assertEquals(5, agreement.getRentalDays());
+        Assertions.assertEquals(LocalDate.of(2015, 9, 3), agreement.getCheckoutDate());
+        Assertions.assertEquals(LocalDate.of(2015, 9, 7), agreement.getDueDate());
+        Assertions.assertEquals(33.86, agreement.getPreDiscountCharge(), 0.01, "Pre discount charge");
+        Assertions.assertEquals(10, agreement.getDiscountPercent(), "Discount percent");
+        Assertions.assertEquals(3.39, agreement.getDiscountAmount(), 0.01, "Discount amount");
+        Assertions.assertEquals(30.47, agreement.getFinalCharge(), 0.01, "Final charge");
+    }
+
+}
+
+
+File: .\testcode\src\test\java\com\shiva\rental_service\RentalServiceApplicationTests.java
+package com.shiva.rental_service;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class RentalServiceApplicationTests {
+
+    @Test
+    public void testMain() {
+        RentalServiceApplication.main(new String[]{});
+    }
+
+}
+
+
+File: .\testcode\src\test\java\com\shiva\rental_service\TestCasesAsPerDocument.java
+package com.shiva.rental_service;
+
+import com.shiva.rental_service.entities.Cart;
+import com.shiva.rental_service.entities.RentalAgreement;
+import com.shiva.rental_service.entities.Tool;
+import com.shiva.rental_service.exception.InvalidDiscountException;
+import com.shiva.rental_service.services.CheckoutService;
+import com.shiva.rental_service.services.HolidayService;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
+
+public class TestCasesAsPerDocument {
+
+    private static Map<String, Tool> toolInventory;
+    private static CheckoutService checkoutService;
+
+    @BeforeAll
+    public static void setup() {
+        toolInventory = new HashMap<>();
+        toolInventory.put("CHNS", new Tool("CHNS", "Chainsaw", "Stihl", 1.49, false, true));
+        toolInventory.put("LADW", new Tool("LADW", "Ladder", "Werner", 1.99, true, false));
+        toolInventory.put("JAKD", new Tool("JAKD", "Jackhammer", "DeWalt", 2.99, false, false));
+        toolInventory.put("JAKR", new Tool("JAKR", "Jackhammer", "Ridgid", 2.99, false, false));
+
+        HolidayService holidayService = new HolidayService();
+        checkoutService = new CheckoutService(holidayService);
+    }
+
+    @Test
+    public void test1() {
+
+        Map<Tool, Integer> toolQuantities1 = new HashMap<>();
+        toolQuantities1.put(toolInventory.get("JAKR"), 1);
+        Cart cart = new Cart(toolQuantities1, LocalDate.of(2015, 9, 3), 5);
+        Assertions.assertThrows(InvalidDiscountException.class, () -> checkoutService.checkout(cart, 101));
+
+    }
+
+
+    @Test
+    public void test2() {
+
+        Map<Tool, Integer> toolQuantities1 = new HashMap<>();
+        toolQuantities1.put(toolInventory.get("LADW"), 1);
+        Cart cart = new Cart(toolQuantities1, LocalDate.of(2020, 7, 2), 3);
+        RentalAgreement agreement = checkoutService.checkout(cart, 10);
+        Assertions.assertEquals(3.58, agreement.getFinalCharge(), 0.01);
+    }
+
+
+    @Test
+    public void test2_independence_day_on_sunday() {
+
+        Map<Tool, Integer> toolQuantities1 = new HashMap<>();
+        toolQuantities1.put(toolInventory.get("LADW"), 1);
+        Cart cart = new Cart(toolQuantities1, LocalDate.of(2021, 7, 2), 3);
+        RentalAgreement agreement = checkoutService.checkout(cart, 10);
+        Assertions.assertEquals(5.37, agreement.getFinalCharge(), 0.01);
+    }
+
+    @Test
+    public void test3() {
+
+        Map<Tool, Integer> toolQuantities1 = new HashMap<>();
+        toolQuantities1.put(toolInventory.get("CHNS"), 1);
+        Cart cart = new Cart(toolQuantities1, LocalDate.of(2015, 7, 2), 5);
+        RentalAgreement agreement = checkoutService.checkout(cart, 25);
+        Assertions.assertEquals(3.35, agreement.getFinalCharge(), 0.01);
+
+    }
+
+    @Test
+    public void test4() {
+
+        Map<Tool, Integer> toolQuantities1 = new HashMap<>();
+        toolQuantities1.put(toolInventory.get("JAKD"), 1);
+        Cart cart = new Cart(toolQuantities1, LocalDate.of(2015, 9, 3), 6);
+        RentalAgreement agreement = checkoutService.checkout(cart, 0);
+        Assertions.assertEquals(8.97, agreement.getFinalCharge(), 0.01);
+
+    }
+
+
+    @Test
+    public void test5() {
+
+        Map<Tool, Integer> toolQuantities1 = new HashMap<>();
+        toolQuantities1.put(toolInventory.get("JAKR"), 1);
+        Cart cart = new Cart(toolQuantities1, LocalDate.of(2015, 7, 2), 9);
+        RentalAgreement agreement = checkoutService.checkout(cart, 0);
+        Assertions.assertEquals(17.94, agreement.getFinalCharge(), 0.01);
+
+    }
+
+    @Test
+    public void test6() {
+
+        Map<Tool, Integer> toolQuantities1 = new HashMap<>();
+        toolQuantities1.put(toolInventory.get("JAKR"), 1);
+        Cart cart = new Cart(toolQuantities1, LocalDate.of(2020, 7, 2), 4);
+        RentalAgreement agreement = checkoutService.checkout(cart, 50);
+        Assertions.assertEquals(1.49, agreement.getFinalCharge(), 0.01);
+
+    }
+
+
+}
+
+
