@@ -35,11 +35,11 @@ Progress:
     prompt = replace_tokens_in_file_text("./templates/analyze.templ", {"@@INPUT1@@": resultSource})
 
     # write the final prompt into content/source.txt file for review
-    try:
-        with open("content/source.txt", 'w', encoding='utf-8') as file:
-            file.write(prompt)
-    except Exception as e:
-        print(f"Error writing text to {e}")
+    # try:
+    #     with open("content/source.txt", 'w', encoding='utf-8') as file:
+    #         file.write(prompt)
+    # except Exception as e:
+    #     print(f"Error writing text to {e}")
 
     result = generate_text(prompt)
 
