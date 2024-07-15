@@ -18,41 +18,37 @@ Progress:
 
     # Get listing of source
 
-    print("(1/3) Getting source code...")    
+    print("(1/2) Getting source code...")    
 
-    contentSource = process_file("content/context.txt")
+    
+    for root, dirs, files in os.walk(source_path):
+        for file in files:
+            print("(2/3) Processing Java file :",file)                        
+            file_path = os.path.join(root, file)            
+            resultSource = process_file(file_path)
+            prompt = replace_tokens_in_file_text("./templates/analyze.templ", {"@@INPUT1@@": resultSource})
 
-    if not contentSource:
-        resultSource = analyze_files(root_dir=source_path)
-    else:
-        resultSource = contentSource
-  
+            # write the final prompt into content/source.txt file for review
+            # try:
+            #     with open("content/source.txt", 'w', encoding='utf-8') as file:
+            #         file.write(prompt)
+            # except Exception as e:
+            #     print(f"Error writing text to {e}")
 
-    # Ask for analysis
+            result = generate_text(prompt)
 
-    print("(2/3) Analyzing source code...")
+            # Send results to output            
+            dwl_file_name = file.replace(".java",".dwl")
 
-    prompt = replace_tokens_in_file_text("./templates/analyze.templ", {"@@INPUT1@@": resultSource})
+            print("(3/3) Writing output for ",dwl_file_name)
+            write_text_to_file(result, os.path.join(output,dwl_file_name))
 
-    # write the final prompt into content/source.txt file for review
-    # try:
-    #     with open("content/source.txt", 'w', encoding='utf-8') as file:
-    #         file.write(prompt)
-    # except Exception as e:
-    #     print(f"Error writing text to {e}")
+            break
 
-    result = generate_text(prompt)
+            # Optionally show results on screen
 
-    # Send results to output
-
-    print("(3/3) Writing output...")
-
-    write_text_to_file(result, output)
-
-    # Optionally show results on screen
-
-    if show_results:
-        print(result)
+            if show_results:
+                print(result)
 
     print(f"""
 Success: Analysis complete!
@@ -79,7 +75,7 @@ def main():
         #   #
         #   #
         #####
-Cadinal Senior software engineer test analsis
+Java to Mulesoft Dataweave language translator
 Version 1.0.0
 
 --------------------------------------------------------------------------------
@@ -92,7 +88,7 @@ Initializing... Please wait...
     # Subparser for 'analyze' command
     parser_analyze = subparsers.add_parser('analyze', help='Analyze java source code')
     parser_analyze.add_argument('source_path', help='Path to the java source code')
-    parser_analyze.add_argument('-o', '--output', help='Path to save the analysis report', default='out/analysis_report/analysis_report.md')
+    parser_analyze.add_argument('-o', '--output', help='Path to save the analysis report', default='out/analysis_report/')
     parser_analyze.add_argument('--show-results', help='Display analysis results on the screen', action='store_true')
     parser_analyze.set_defaults(func=analyze)
 

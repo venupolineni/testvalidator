@@ -1,176 +1,173 @@
-Problem: Convert Java files to DataWeave (DWL) files.
+INSTRUCTIONS:
 
-Sample Java Code:
+Convert the provided Java code to Mulesoft DataWeave (DWL) files. Ensure that the comments from the Java code are included in the corresponding DWL functions.
+
+SAMPLE JAVA CODE:
 package com.test.ei.customer.eligibility.util.eligibilityrules;
 
-import java.util.List;
+  import java.util.List;
 
-import com.test.ei.customer.eligibility.util.rules.RuleEngine;
-import com.test.ei.customer.eligibility.utils.common.ServiceConstants;
-import com.splwg.cmwsreadextensiveaccountdetails.response.AccountServiceagreementIRow;
-import com.splwg.cmwsreadextensiveaccountdetails.response.CmwsreadExtensiveAccountDetails;
-import com.splwg.cmwsreadextensiveaccountdetailsnoarrear.response.CmwsreadExtensiveAccountDetailsNoArrear;
+  import com.test.ei.customer.eligibility.util.rules.RuleEngine;
+  import com.test.ei.customer.eligibility.utils.common.ServiceConstants;
+  import com.splwg.cmwsreadextensiveaccountdetails.response.AccountServiceagreementIRow;
+  import com.splwg.cmwsreadextensiveaccountdetails.response.CmwsreadExtensiveAccountDetails;
+  import com.splwg.cmwsreadextensiveaccountdetailsnoarrear.response.CmwsreadExtensiveAccountDetailsNoArrear;
 
-public class EligibilityRule_104 implements EligibilityRuleInterface {
+  public class EligibilityRule_104 implements EligibilityRuleInterface {
 
-	
-	private static final String RULECODE = "104";
-	public static final String RULE104_FOUND_MESSAGE = "Ineligible account due to the Closed Account Rule";
-	public static final String RULE104_FOUND_CODE = "104";
-			
-		public String getRuleCode() {
-		return RULECODE;
-	}
-	
-    @Override
-    public EligibilityRuleStatus execute(RuleEngine engine, List<Object> list) {
-    	for (Object obj : list) {
-    		if (obj instanceof CmwsreadExtensiveAccountDetailsNoArrear) {
-				return executeDetail((CmwsreadExtensiveAccountDetailsNoArrear) obj);
-			}
-    	}	
-    	return new EligibilityRuleStatus(RULECODE, ServiceConstants.INVALID_OBJECT_CODE, ServiceConstants.INVALID_OBJECT_MESSAGE);
+    
+    private static final String RULECODE = "104";
+    public static final String RULE104_FOUND_MESSAGE = "Ineligible account due to the Closed Account Rule";
+    public static final String RULE104_FOUND_CODE = "104";
+        
+      public String getRuleCode() {
+      return RULECODE;
     }
-
-    private EligibilityRuleStatus executeDetail(CmwsreadExtensiveAccountDetailsNoArrear  response) {
-
-   		List<com.splwg.cmwsreadextensiveaccountdetailsnoarrear.response.AccountServiceagreementIRow> asarows = response.getCmwsreadExtensiveAccountDetailsNoArrearService().getCmwsreadExtensiveAccountDetailsNoArrearDetails().getAccountServiceagreementI().getAccountServiceagreementIRow();
-       	if (asarows == null) {
-   			return new EligibilityRuleStatus(RULECODE, ServiceConstants.INVALID_OBJECT_CODE, ServiceConstants.INVALID_OBJECT_MESSAGE);
-   		}
-       	for (com.splwg.cmwsreadextensiveaccountdetailsnoarrear.response.AccountServiceagreementIRow asarow : asarows) {
-       		String type = asarow.getServiceType();
-       		String status = asarow.getSAStatus();
-       		if ((type != null) && (type.equals("E") || (type.equals("G")) || (type.equals("M")))) {
-       			if ((status != null) && 
-       				!(("60".equals(status)) || ("70".equals(status)) || 
-       			    (("40".equals(status)) && (asarow.getCurrentAmount() != null) && (asarow.getCurrentAmount().longValue() <= 0L)))) {	
-       		    	return new EligibilityRuleStatus(RULECODE, ServiceConstants.SUCCESS_CODE, ServiceConstants.SUCCESS_MESSAGE);
-       		    }
-       		}
-       	}
-   		return new EligibilityRuleStatus(RULECODE, RULE104_FOUND_CODE, RULE104_FOUND_MESSAGE);
-    }   
-}
-
-Converted DWl code:
-
-%dw 2.0
-var RULECODE = "104"
-var RULE104_FOUND_MESSAGE = "Ineligible account due to the Closed Account Rule"
-var RULE104_FOUND_CODE = "104"
-var INVALID_OBJECT_CODE = "400"
-var INVALID_OBJECT_MESSAGE = "Invalid Object"
-var SUCCESS_CODE = "200"
-var SUCCESS_MESSAGE = "Success"
-
-// Function to check the account status
-fun checkAccountStatus(asarow) = do {
-  var status = asarow.SAStatus
-  ---
-  (status != null) and !((status == "60") or (status == "70") or ((status == "40") and (asarow.CurrentAmount != null) and (asarow.CurrentAmount <= 0)))
-   
-}
-
-/*
-* Executes the detailed eligibility rule check on the given response.
-* Checks the response for the presence of specific conditions in the account
-* service agreement rows (asarows) and evaluates their service type and status.
-* 
-* @param response - The input response to evaluate
-* @return An object containing the rule code, status code, and message
-**/
-fun executeDetail(response) = do {
-  var asarows = response.CmwsreadExtensiveAccountDetailsNoArrearService.CmwsreadExtensiveAccountDetailsNoArrearDetails.AccountServiceagreementI.AccountServiceagreementIRow default []
-  ---
-  if (isEmpty(asarows)) {
-    ruleCode: RULECODE,
-    code: INVALID_OBJECT_CODE,
-    message: INVALID_OBJECT_MESSAGE
-  } else do {
-    var result = asarows filter ((asarow) -> do {
-        var typeService = asarow.ServiceType
-        ---
-        if ((typeService != null) and (typeService == "E" or typeService == "G" or typeService == "M"))
-          checkAccountStatus(asarow)
-        else
-          false
-      })
-    ---
-    if (isEmpty(result))
-      {
-        ruleCode: RULECODE,
-        code: RULE104_FOUND_CODE,
-        message: RULE104_FOUND_MESSAGE
+    
+      @Override
+      public EligibilityRuleStatus execute(RuleEngine engine, List<Object> list) {
+        for (Object obj : list) {
+          if (obj instanceof CmwsreadExtensiveAccountDetailsNoArrear) {
+          return executeDetail((CmwsreadExtensiveAccountDetailsNoArrear) obj);
+        }
+        }	
+        return new EligibilityRuleStatus(RULECODE, ServiceConstants.INVALID_OBJECT_CODE, ServiceConstants.INVALID_OBJECT_MESSAGE);
       }
-    else
-      {
-        ruleCode: RULECODE,
-        code: SUCCESS_CODE,
-        message: SUCCESS_MESSAGE
-      }
+
+      private EligibilityRuleStatus executeDetail(CmwsreadExtensiveAccountDetailsNoArrear  response) {
+
+        List<com.splwg.cmwsreadextensiveaccountdetailsnoarrear.response.AccountServiceagreementIRow> asarows = response.getCmwsreadExtensiveAccountDetailsNoArrearService().getCmwsreadExtensiveAccountDetailsNoArrearDetails().getAccountServiceagreementI().getAccountServiceagreementIRow();
+          if (asarows == null) {
+          return new EligibilityRuleStatus(RULECODE, ServiceConstants.INVALID_OBJECT_CODE, ServiceConstants.INVALID_OBJECT_MESSAGE);
+        }
+          for (com.splwg.cmwsreadextensiveaccountdetailsnoarrear.response.AccountServiceagreementIRow asarow : asarows) {
+            String type = asarow.getServiceType();
+            String status = asarow.getSAStatus();
+            if ((type != null) && (type.equals("E") || (type.equals("G")) || (type.equals("M")))) {
+              if ((status != null) && 
+                !(("60".equals(status)) || ("70".equals(status)) || 
+                  (("40".equals(status)) && (asarow.getCurrentAmount() != null) && (asarow.getCurrentAmount().longValue() <= 0L)))) {	
+                  return new EligibilityRuleStatus(RULECODE, ServiceConstants.SUCCESS_CODE, ServiceConstants.SUCCESS_MESSAGE);
+                }
+            }
+          }
+        return new EligibilityRuleStatus(RULECODE, RULE104_FOUND_CODE, RULE104_FOUND_MESSAGE);
+      }   
   }
-}
 
-/**
-* Executes the eligibility rule check on a list of input objects.
-* Iterates over the list to apply the executeDetail function to eligible objects.
-* 
-* @param list - List of input objects to evaluate
-* @return An object containing the rule code, status code, and message
-**/
-fun execute(list) = do {
-  var results = list map (obj) -> if (!isEmpty(obj.CmwsreadExtensiveAccountDetailsNoArrearService default null))
-      executeDetail(obj)
-    else
+CONVERTED MULESOFT DWL CODE WITH FORMAT:
+
+  %dw 2.0
+  var RULECODE = "104"
+  var RULE104_FOUND_MESSAGE = "Ineligible account due to the Closed Account Rule"
+  var RULE104_FOUND_CODE = "104"
+  var INVALID_OBJECT_CODE = "400"
+  var INVALID_OBJECT_MESSAGE = "Invalid Object"
+  var SUCCESS_CODE = "200"
+  var SUCCESS_MESSAGE = "Success"
+
+  // Function to check the account status
+  fun checkAccountStatus(asarow) = do {
+    var status = asarow.SAStatus
+    ---
+    (status != null) and !((status == "60") or (status == "70") or ((status == "40") and (asarow.CurrentAmount != null) and (asarow.CurrentAmount <= 0)))
+    
+  }
+
+  /*
+  * Executes the detailed eligibility rule check on the given response.
+  * Checks the response for the presence of specific conditions in the account
+  * service agreement rows (asarows) and evaluates their service type and status.
+  * 
+  * @param response - The input response to evaluate
+  * @return An object containing the rule code, status code, and message
+  **/
+  fun executeDetail(response) = do {
+    var asarows = response.CmwsreadExtensiveAccountDetailsNoArrearService.CmwsreadExtensiveAccountDetailsNoArrearDetails.AccountServiceagreementI.AccountServiceagreementIRow default []
+    ---
+    if (isEmpty(asarows)) {
+      ruleCode: RULECODE,
+      code: INVALID_OBJECT_CODE,
+      message: INVALID_OBJECT_MESSAGE
+    } else do {
+      var result = asarows filter ((asarow) -> do {
+          var typeService = asarow.ServiceType
+          ---
+          if ((typeService != null) and (typeService == "E" or typeService == "G" or typeService == "M"))
+            checkAccountStatus(asarow)
+          else
+            false
+        })
+      ---
+      if (isEmpty(result))
+        {
+          ruleCode: RULECODE,
+          code: RULE104_FOUND_CODE,
+          message: RULE104_FOUND_MESSAGE
+        }
+      else
+        {
+          ruleCode: RULECODE,
+          code: SUCCESS_CODE,
+          message: SUCCESS_MESSAGE
+        }
+    }
+  }
+
+  /**
+  * Executes the eligibility rule check on a list of input objects.
+  * Iterates over the list to apply the executeDetail function to eligible objects.
+  * 
+  * @param list - List of input objects to evaluate
+  * @return An object containing the rule code, status code, and message
+  **/
+  fun execute(list) = do {
+    var results = list map (obj) -> if (!isEmpty(obj.CmwsreadExtensiveAccountDetailsNoArrearService default null))
+        executeDetail(obj)
+      else
+        {
+          ruleCode: RULECODE,
+          code: INVALID_OBJECT_CODE,
+          message: INVALID_OBJECT_MESSAGE
+        }
+    ---
+    if (isEmpty(results))
       {
         ruleCode: RULECODE,
         code: INVALID_OBJECT_CODE,
         message: INVALID_OBJECT_MESSAGE
       }
+    else
+      results[0]
+  }
+  output application/json  
   ---
-  if (isEmpty(results))
+  // Main transformation logic
+  // Checks if the payload contains the CmwsreadExtensiveAccountDetailsNoArrearService key.
+  // If present, it executes the rule check. Otherwise, returns an invalid object response.
+  if (isEmpty(payload.CmwsreadExtensiveAccountDetailsNoArrearService))
     {
       ruleCode: RULECODE,
       code: INVALID_OBJECT_CODE,
       message: INVALID_OBJECT_MESSAGE
     }
   else
-    results[0]
-}
-output application/json  
----
-// Main transformation logic
-// Checks if the payload contains the CmwsreadExtensiveAccountDetailsNoArrearService key.
-// If present, it executes the rule check. Otherwise, returns an invalid object response.
-if (isEmpty(payload.CmwsreadExtensiveAccountDetailsNoArrearService))
-  {
-    ruleCode: RULECODE,
-    code: INVALID_OBJECT_CODE,
-    message: INVALID_OBJECT_MESSAGE
-  }
-else
-  execute([
-    payload
-  ])
+    execute([
+      payload
+    ])
 
 Hints:
-1) Use the above java code and converted DWl file for reference
 
-2) Use Best Practices of DWL:
+Use the above Java code and converted DWL file for reference.
+Use best practices of DWL:
+Utilize DataWeave functions like map, filter, pluck, reduce, and others appropriately.
+Maintain the correct order of conditional (if) statements for logic.
+Ensure readability and efficiency of the DataWeave code.
+Validation:
+If possible, validate the generated DWL code using DataWeave Playground.
+Documentation Reference:
+For syntax and best practices, refer to the DataWeave Documentation.
+Provide the output content format in Mulesoft DataWeave Language (DWL).
 
-              Utilize DataWeave functions like map, filter, pluck, reduce, and others appropriately.
-
-              Maintain the correct order of conditional (if) statements for logic.
-
-              Ensure readability and efficiency of the DataWeave code.
-
-3) Validation:
-
-        If possible, validate the generated DWL code using DataWeave Playground.
-
-4)Documentation Reference:
-
-       For syntax and best practices, refer to the DataWeave Documentation.
-
-5) provide the output content format in Mulesoft DataWeave Lanugage (DWL).
+```Java```
+@@INPUT1@@
